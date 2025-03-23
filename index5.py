@@ -92,7 +92,7 @@ class HardwareController:
     
     def acionar_saida(self, pin):
         logging.info(f"Acionar Saida {pin}")
-        print((f"Acionar Saida {pin}")
+        print(f"Acionar Saida {pin}")
         try:
             led = LED(pin)
             led.off()

@@ -7,6 +7,8 @@ from flask_cors import CORS
 import logging
 from flask import Flask, request, jsonify
 from datetime import datetime
+import time
+import glob
 
 try:
     import RPi.GPIO as GPIO
@@ -134,34 +136,13 @@ class HardwareController:
         print("GPIO cleanup completed.")
 
 
-# def camera_process(conn):
-#     # Definindo os caminhos persistentes das câmeras
-#     camera_device_paths = ["/dev/video0", "/dev/video4", "/dev/video2"]
-    
-#     # Caminhos das imagens fixas para comparação
-#     fixed_image_paths = ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png", "10.png", "11.png", "12.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "20.png", "21.png", "22.png", "23.png", "24.png", "25.png", "26.png", "27.png", "28.png", "29.png", "30.png", "31.png", "32.png", "33.png", "34.png", "35.png", "36.png", "37.png", "38.png", "39.png", "40.png", "41.png", "42.png", "43.png", "44.png", "45.png", "46.png", "47.png", "48.png", "49.png", "50.png", "51.png", "52.png"]
-
-#     # Defina a quantidade de comparações para cada câmera antes de trocar
-#     max_captures_list = [14, 14, 13]  # Ajuste os valores conforme necessário para cada câmera
-    
-#     # Inicializa e inicia a câmera com os caminhos persistentes e limites de captura específicos
-#     camera = Camera(camera_device_paths, fixed_image_paths, max_captures_list)
-#     camera.start(pipe=conn)
-
 def camera_process(conn):
     # Define persistent camera device paths
     camera_device_paths = ["/dev/video0", "/dev/video4", "/dev/video2"]
     # Fixed images for comparison
-    fixed_image_paths = [
-        "./security-images/1.png", 
-        "./security-images/2.png", 
-        "./security-images/3.png", 
-        "./security-images/4.png", 
-        "./security-images/5.png", 
-        "./security-images/6.png", 
-        "./security-images/7.png", 
-        "./security-images/8.png"
-    ]
+    fixed_image_paths = glob.glob("./Fotos_PB/*.png")
+    print(fixed_image_paths)
+
     # Maximum captures for each camera device
     max_captures_list = [13, 14, 13]
     
@@ -321,7 +302,6 @@ class Camera:
                 return True
         logging.error(f"Nenhuma imagem reconhecida.")
         return False
-   
 
 
 ##############################################
@@ -348,22 +328,22 @@ def trigger_pin(pin):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/capture', methods=['GET'])
-def capture_image():
+@app.route('/capture/<int:camera>', methods=['GET'])
+def capture_image(camera):
     """
     Commands the camera process to capture an image and compare it against fixed images.
     Example: GET /capture
     """
     try:
-        return jsonify({"result": "recognized"}), 200
-
         if parent_conn:
+            parent_conn.send('camera{camera}')
+
+            time.sleep(2)
+
             parent_conn.send('c')
-            # Wait for response from camera process (timeout after 10 seconds)
-            timeout = 10
-            start_time = time.time()
-            while not parent_conn.poll() and (time.time() - start_time < timeout):
-                time.sleep(0.1)
+            
+            time.sleep(5)
+
             if parent_conn.poll():
                 result = parent_conn.recv()
                 return jsonify({"result": result}), 200

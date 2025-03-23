@@ -9,37 +9,7 @@ from flask import Flask, request, jsonify
 from datetime import datetime
 import time
 import glob
-
-try:
-    import RPi.GPIO as GPIO
-except ImportError:
-    class DummyGPIO:
-        BOARD = 'BOARD'
-        BCM = 'BCM'
-        IN = 'IN'
-        OUT = 'OUT'
-        LOW = False
-        HIGH = True
-        PUD_UP = 'PUD_UP'
-        PUD_DOWN = 'PUD_DOWN'
-        PUD_OFF = 'PUD_OFF'
-
-        def setmode(self, mode):
-            print(f"Setting mode to {mode}")
-
-        def setup(self, channel, mode, pull_up_down=None):
-            print(f"Setting up channel {channel} to mode {mode} and pullupdown={pull_up_down}")
-
-        def output(self, channel, state):
-            print(f"Setting channel {channel} to state {state}")
-
-        def cleanup(self):
-            print("Cleaning up GPIO")
-
-        def setwarnings(self, mode):
-            print("Setting warning {mode}")
-
-    GPIO = DummyGPIO()
+import RPi.GPIO as GPIO
 
 # Criação de pasta para armazenar os logs
 pasta_logs = "./logs"

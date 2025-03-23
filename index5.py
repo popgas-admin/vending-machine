@@ -92,12 +92,14 @@ class HardwareController:
     
     def acionar_saida(self, pin):
         logging.info(f"Acionar Saida {pin}")
+        print((f"Acionar Saida {pin}")
         try:
             led = LED(pin)
             led.off()
             time.sleep(2) 
             led.on()
         except Exception as e:
+            print(f"Erro ao acionar saída {p} : {e}")
             logging.error(f"Erro ao acionar saída {p} : {e}")
 
     def cleanup(self):

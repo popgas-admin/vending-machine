@@ -9,7 +9,11 @@ from flask import Flask, request, jsonify
 from datetime import datetime
 import time
 import glob
-import RPi.GPIO as GPIO
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    from Mock.GPIO import GPIO
 
 # Criação de pasta para armazenar os logs
 pasta_logs = "./logs"
